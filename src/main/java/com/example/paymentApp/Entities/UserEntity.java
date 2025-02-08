@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Entity
@@ -23,25 +22,19 @@ import lombok.Setter;
 public class UserEntity {
 
 	@Id
-	@NonNull
-	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column
-	@NonNull
+	@Column(nullable = false)
 	private String email;
 
-	@Column
-	@NonNull
+	@Column(nullable = false)
 	private String username;
 
-	@Column
-	@NonNull
+	@Column(nullable = false)
 	private String password;
 
-	@Column
-	@NonNull
+	@Column(nullable = false)
 	private String role;
 
 }
