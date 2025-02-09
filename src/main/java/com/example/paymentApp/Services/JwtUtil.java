@@ -2,11 +2,10 @@ package com.example.paymentApp.Services;
 
 import com.example.paymentApp.Configurations.AppConfig;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -32,39 +31,30 @@ public class JwtUtil {
 
 	}
 
-//	public boolean validateToken(String token) {
-//
-//	}
+	public boolean validateToken(String token, UserDetails userDetails) {
+		String username = userDetails.getUsername();
+		String usernameFromToken = extractUsernameFromToken(token);
 
-	public String getUsernameFromToken(String token) {
-		try {
-			Claims claim = (Claims) Jwts.parser().build().parseSignedClaims(token);
-			return claim.getSubject();
-		} catch (
-				ExpiredJwtException e) {
-			System.err.println("Token expired: " + e.getMessage());
-		} catch (
-				JwtException e) {
-			System.err.println("Invalid token: " + e.getMessage());
-		}
-		return null;
+		return (username.equals(usernameFromToken) && !isTokenExpired(token));
+	}
+
+	public String extractUsernameFromToken(String token) {
+		Claims claim = extractClaimsFromToken(token);
+		return claim.getSubject();
 	}
 
 	public Claims extractClaimsFromToken(String token) {
-		try {
 			Jws<Claims> claimsJws = Jwts.parser().build().parseSignedClaims(token);
 			return claimsJws.getPayload();
-		} catch (
-				ExpiredJwtException e)
-		{
-			System.err.println("Token expired, but returning claims: " + e.getMessage());
-			return e.getClaims();
-		} catch (
-				JwtException e)
-		{
-			System.err.println("Invalid token: " + e.getMessage());
-			return null;
-		}
+	}
+
+	public Date extractExpirationDateFromToken(String token) {
+		Claims claims = extractClaimsFromToken(token);
+		return claims.getExpiration();
+	}
+
+	public boolean isTokenExpired(String token) {
+		return extractExpirationDateFromToken(token).before(new Date());
 	}
 
 }
