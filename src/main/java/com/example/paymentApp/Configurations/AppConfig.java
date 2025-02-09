@@ -1,28 +1,26 @@
 package com.example.paymentApp.Configurations;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 
 @Configuration
-@ConfigurationProperties(prefix = "app")
 public class AppConfig {
 
+	@Value("${app.secret-key}")
 	private String secretKey;
-	private long expirationTime;
+	@Value("${app.expiration-time}")
+	private int expirationTime;
 
-	public long getExpirationTime() {
+
+	public int getExpirationTime() {
 		return expirationTime;
 	}
 
 	public String getSecretKey() {
 		return secretKey;
-	}
-
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
-	}
-
-	public void setExpirationTime(long expirationTime) {
-		this.expirationTime = expirationTime;
 	}
 }
