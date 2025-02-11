@@ -5,6 +5,7 @@ import com.example.paymentApp.Entities.UserEntity;
 import com.example.paymentApp.Repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -19,9 +20,10 @@ public class UserService {
 		this.jwtUtil = jwtUtil;
 	}
 
+	@Transactional
 	public void registerUser(UserDto userDto) {
 		if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-			throw new RuntimeException("Email already exists");
+			throw new RuntimeException("Account with email " + userDto.getEmail() + " already exists");
 		}
 
 		UserEntity userEntity = new UserEntity();
@@ -32,15 +34,23 @@ public class UserService {
 		userRepository.save(userEntity);
 	}
 
+	@Transactional
 	public String authenticateUser(String email, String password) {
 		UserEntity userEntity = userRepository
 				.findByEmail(email)
 				.orElseThrow(() -> new RuntimeException("User not found"));
+
 		if (!passwordEncoder.matches(password, userEntity.getPassword())) {
 			throw new RuntimeException("Incorrect password");
 		}
 
-		return jwtUtil.generateToken(userEntity.getUsername());
+		return jwtUtil.generateToken(jwtUtil.getClaims(userEntity));
+	}
+
+	public UserDto getUserInfoFromJwt(String token) {
+		String username = jwtUtil.extractUsernameFromToken(token);
+		UserEntity userEntity = getUserByUsername(username);
+		return new UserDto(userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername());
 	}
 
 	public UserEntity getUserById(Long id) {
@@ -49,6 +59,10 @@ public class UserService {
 
 	public UserEntity getUserByEmail(String email) {
 		return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
+	public UserEntity getUserByUsername(String username) {
+		return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 	}
 
 	public void changePassword(Long id, String oldPassword, String newPassword) {
