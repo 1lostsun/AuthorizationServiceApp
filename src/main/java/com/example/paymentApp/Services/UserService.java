@@ -1,11 +1,12 @@
 package com.example.paymentApp.Services;
 
+import com.example.paymentApp.Exceptions.IncorrectPasswordException;
+import com.example.paymentApp.Exceptions.UserNotFoundException;
 import com.example.paymentApp.Dto.UserDto;
 import com.example.paymentApp.Entities.UserEntity;
 import com.example.paymentApp.Repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -20,7 +21,6 @@ public class UserService {
 		this.jwtUtil = jwtUtil;
 	}
 
-	@Transactional
 	public void registerUser(UserDto userDto) {
 		if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
 			throw new RuntimeException("Account with email " + userDto.getEmail() + " already exists");
@@ -34,17 +34,16 @@ public class UserService {
 		userRepository.save(userEntity);
 	}
 
-	@Transactional
 	public String authenticateUser(String email, String password) {
 		UserEntity userEntity = userRepository
 				.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		if (!passwordEncoder.matches(password, userEntity.getPassword())) {
-			throw new RuntimeException("Incorrect password");
+			throw new IncorrectPasswordException("Incorrect password");
 		}
 
-		return jwtUtil.generateToken(jwtUtil.getClaims(userEntity));
+		return jwtUtil.generateToken(userEntity.getUsername());
 	}
 
 	public UserDto getUserInfoFromJwt(String token) {
@@ -54,21 +53,17 @@ public class UserService {
 	}
 
 	public UserEntity getUserById(Long id) {
-		return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-	}
-
-	public UserEntity getUserByEmail(String email) {
-		return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+		return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
 	}
 
 	public UserEntity getUserByUsername(String username) {
-		return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+		return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
 	}
 
 	public void changePassword(Long id, String oldPassword, String newPassword) {
 		UserEntity userEntity = getUserById(id);
 		if (!passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
-			throw new RuntimeException("Incorrect password");
+			throw new IncorrectPasswordException("Incorrect password");
 		}
 		userEntity.setPassword(passwordEncoder.encode(newPassword));
 	}
@@ -79,22 +74,16 @@ public class UserService {
 	}
 
 	public void updateUser(UserDto userDto) {
-		UserEntity userEntity = getUserByEmail(userDto.getEmail());
+		UserEntity userEntity = getUserByUsername(userDto.getUsername());
 
 		userEntity.setUsername(userDto.getUsername());
 		userEntity.setEmail(userDto.getEmail());
 		userRepository.save(userEntity);
 	}
 
-	public void updateRole(Long id, String role) {
-		UserEntity userEntity = getUserById(id);
-
-		userEntity.setRole(role);
-	}
-
 	public void deleteUserById(Long id) {
 		if (!userRepository.existsById(id)) {
-			throw new RuntimeException("User not found");
+			throw new UserNotFoundException("User not found");
 		}
 
 		userRepository.deleteById(id);

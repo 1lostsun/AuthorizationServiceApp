@@ -20,7 +20,7 @@ public class UserController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> registerPage(@RequestBody UserDto userDto) {
+	public ResponseEntity<?> register(@RequestBody UserDto userDto) {
 		try {
 			userService.registerUser(userDto);
 		} catch (Exception e) {
@@ -31,7 +31,7 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> loginPage(@RequestBody UserDto userDto) {
+	public ResponseEntity<?> login(@RequestBody UserDto userDto) {
 		String token = userService.authenticateUser(userDto.getEmail(), userDto.getPassword());
 		return ResponseEntity.ok("User login successfully " + "with token " + token);
 	}
@@ -46,14 +46,14 @@ public class UserController {
 		return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body("<h1>Server is running!<h1>");
 	}
 
-	@PostMapping("/user/info")
-	public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String token) {
-		try {
-			return ResponseEntity.ok().body(userService.getUserInfoFromJwt(token.substring(7)));
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+//	@PostMapping("/user/info")
+//	public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String token) {
+//		try {
+//			return ResponseEntity.ok().body(userService.getUserInfoFromJwt(token.substring(7)));
+//		} catch (Exception e) {
+//			return ResponseEntity.badRequest().body(e.getMessage());
+//		}
+//	}
 
 }
 

@@ -1,7 +1,6 @@
 package com.example.paymentApp.Services;
 
 import com.example.paymentApp.Configurations.AppConfig;
-import com.example.paymentApp.Entities.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.HashMap;
 
 @Component
 public class JwtUtil {
@@ -25,63 +23,45 @@ public class JwtUtil {
 		this.expirationTime = appConfig.getExpirationTime();
 	}
 
-	public String generateToken(HashMap<String, String> claims) {
+	public String generateToken(String username) {
 		Date now = new Date();
 		Date expiration = new Date(now.getTime() + expirationTime);
 
 		return Jwts
 				.builder()
 				.signWith(this.key)
-				.subject(claims.get("username"))
-				.claim("email", claims.get("email"))
-				.claim("role", claims.get("role"))
+				.subject(username)
 				.issuedAt(now)
 				.expiration(expiration)
 				.compact();
 	}
 
 	public boolean validateToken(String token, UserDetails userDetails) {
-		try {
 			String username = userDetails.getUsername();
 			String usernameFromToken = extractUsernameFromToken(token);
-			return (username.equals(usernameFromToken) && !isTokenExpired(token));
-		} catch (ExpiredJwtException e) {
-			System.err.println("Токен истек: " + e.getMessage());
-			return false;
+
+			if (!username.equals(usernameFromToken)) {
+				throw new IllegalArgumentException("Invalid username in token");
+			}
+
+			if (isTokenExpired(token)) {
+				throw new ExpiredJwtException(null, null, "Token has expired");
+			}
+
+			return true;
+	}
+
+	public String refreshToken(String token) {
+		try {
+			if (isTokenExpired(token)) {
+				Claims claims = extractClaimsFromToken(token);
+				return generateToken(claims.getSubject());
+			}
+			return token;
 		} catch (Exception e) {
-			System.err.println("Ошибка при проверке токена: " + e.getMessage());
-			return false;
+			System.err.println("Ошибка при обновлении токена: " + e.getMessage());
+			return null;
 		}
-	}
-
-	public HashMap<String, String> getClaims(UserEntity userEntity) {
-		HashMap<String, String> claims = new HashMap<>();
-		claims.put("username", userEntity.getUsername());
-		claims.put("email", userEntity.getEmail());
-		claims.put("role", userEntity.getRole());
-		return claims;
-	}
-
-//	public String refreshToken(String token) {
-//		try {
-//			if (isTokenExpired(token)) {
-//				Claims claims = extractClaimsFromToken(token);
-//				return generateToken(claims);
-//			}
-//			return token;
-//		} catch (ExpiredJwtException e) {
-//			System.err.println("Токен истек: " + e.getMessage());
-//			String username = e.getClaims().getSubject();
-//			return generateToken(username);
-//		} catch (Exception e) {
-//			System.err.println("Ошибка при обновлении токена: " + e.getMessage());
-//			return null;
-//		}
-//	}
-
-	public String extractEmailFromToken(String token) {
-		Claims claims = extractClaimsFromToken(token);
-		return claims.get("email", String.class);
 	}
 
 	public String extractUsernameFromToken(String token) {
