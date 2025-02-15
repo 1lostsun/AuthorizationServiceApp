@@ -1,6 +1,6 @@
 package com.example.paymentApp.Filters;
 
-import com.example.paymentApp.Services.JwtUtil;
+import com.example.paymentApp.Services.JWT.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

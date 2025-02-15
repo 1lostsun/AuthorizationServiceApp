@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>paymentApp</artifactId>
+	<artifactId>AuthorizationServiceApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>paymentApp</name>
 	<description>pet project </description>
@@ -32,6 +32,13 @@
 		<maven.compiler.target>23</maven.compiler.target>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -78,7 +85,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Поддержка различных форматов ключей (например, JSON, XML) -->
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>3.9.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>

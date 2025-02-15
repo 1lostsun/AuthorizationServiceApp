@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,15 +44,6 @@ public class UserController {
 	public ResponseEntity<String> homePage() {
 		return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body("<h1>Server is running!<h1>");
 	}
-
-//	@PostMapping("/user/info")
-//	public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String token) {
-//		try {
-//			return ResponseEntity.ok().body(userService.getUserInfoFromJwt(token.substring(7)));
-//		} catch (Exception e) {
-//			return ResponseEntity.badRequest().body(e.getMessage());
-//		}
-//	}
 
 }
 

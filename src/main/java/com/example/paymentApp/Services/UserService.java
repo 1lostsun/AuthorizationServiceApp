@@ -5,6 +5,7 @@ import com.example.paymentApp.Exceptions.UserNotFoundException;
 import com.example.paymentApp.Dto.UserDto;
 import com.example.paymentApp.Entities.UserEntity;
 import com.example.paymentApp.Repositories.UserRepository;
+import com.example.paymentApp.Services.JWT.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

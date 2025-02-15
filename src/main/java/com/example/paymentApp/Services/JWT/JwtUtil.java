@@ -1,4 +1,4 @@
-package com.example.paymentApp.Services;
+package com.example.paymentApp.Services.JWT;
 
 import com.example.paymentApp.Configurations.AppConfig;
 import io.jsonwebtoken.Claims;

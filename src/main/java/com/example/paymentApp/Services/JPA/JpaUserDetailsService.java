@@ -1,4 +1,4 @@
-package com.example.paymentApp.Services;
+package com.example.paymentApp.Services.JPA;
 
 import com.example.paymentApp.Repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;

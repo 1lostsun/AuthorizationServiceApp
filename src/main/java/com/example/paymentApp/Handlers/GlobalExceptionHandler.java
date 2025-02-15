@@ -1,6 +1,7 @@
 package com.example.paymentApp.Handlers;
 
 import com.example.paymentApp.Exceptions.IncorrectPasswordException;
+import com.example.paymentApp.Exceptions.MessageSendingException;
 import com.example.paymentApp.Exceptions.UserNotFoundException;
 import com.example.paymentApp.Entities.ErrorResponseEntity;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -43,6 +44,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException e) {
 		ErrorResponseEntity errorResponse = new ErrorResponseEntity(new Date(), "Page is not found", HttpStatus.NOT_FOUND.value());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+	}
+
+	@ExceptionHandler(MessageSendingException.class)
+	public ResponseEntity<?> handleMessageSendingException(MessageSendingException e) {
+		ErrorResponseEntity errorResponse = new ErrorResponseEntity(new Date(), e.getMessage(), HttpStatus.BAD_REQUEST.value());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
 
 }
