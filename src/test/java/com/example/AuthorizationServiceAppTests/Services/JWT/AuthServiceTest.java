@@ -1,14 +1,11 @@
-package com.example.AuthorizationServiceAppTests;
+package com.example.AuthorizationServiceAppTests.Services.JWT;
 
 import com.example.AuthorizationServiceApp.AuthorizationServiceApp;
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = AuthorizationServiceApp.class)
-class AuthorizationServiceAppTests {
+public class AuthServiceTest {
 
-	@Test
-	void contextLoads() {
-	}
+
 
 }

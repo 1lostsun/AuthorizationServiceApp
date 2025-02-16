@@ -9,6 +9,8 @@ import com.example.AuthorizationServiceApp.Services.JWT.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -20,31 +22,6 @@ public class UserService {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
-	}
-
-	public void registerUser(UserDto userDto) {
-		if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-			throw new RuntimeException("Account with email " + userDto.getEmail() + " already exists");
-		}
-
-		UserEntity userEntity = new UserEntity();
-		userEntity.setEmail(userDto.getEmail());
-		userEntity.setUsername(userDto.getUsername());
-		userEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
-		userEntity.setRole("USER");
-		userRepository.save(userEntity);
-	}
-
-	public String authenticateUser(String email, String password) {
-		UserEntity userEntity = userRepository
-				.findByEmail(email)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		if (!passwordEncoder.matches(password, userEntity.getPassword())) {
-			throw new IncorrectPasswordException("Incorrect password");
-		}
-
-		return jwtUtil.generateToken(userEntity.getUsername());
 	}
 
 	public UserDto getUserInfoFromJwt(String token) {
@@ -61,17 +38,17 @@ public class UserService {
 		return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
 	}
 
-	public void changePassword(Long id, String oldPassword, String newPassword) {
-		UserEntity userEntity = getUserById(id);
+	public void changePassword(String username, String oldPassword, String newPassword) {
+		UserEntity userEntity = getUserByUsername(username);
 		if (!passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
 			throw new IncorrectPasswordException("Incorrect password");
 		}
 		userEntity.setPassword(passwordEncoder.encode(newPassword));
 	}
 
-	public void changeEmail(Long id, String email) {
-		UserEntity userEntity = getUserById(id);
-		userEntity.setEmail(email);
+	public void changeEmail(String username, String email, String newEmail) {
+		UserEntity userEntity = getUserByUsername(username);
+		userEntity.setEmail(newEmail);
 	}
 
 	public void updateUser(UserDto userDto) {
