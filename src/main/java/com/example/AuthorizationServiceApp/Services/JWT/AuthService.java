@@ -3,6 +3,7 @@ package com.example.AuthorizationServiceApp.Services.JWT;
 import com.example.AuthorizationServiceApp.Dto.UserDto;
 import com.example.AuthorizationServiceApp.Entities.UserEntity;
 import com.example.AuthorizationServiceApp.Exceptions.IncorrectPasswordException;
+import com.example.AuthorizationServiceApp.Exceptions.UserAlreadyExistsException;
 import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
 import com.example.AuthorizationServiceApp.Repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,7 @@ public class AuthService {
 
 	public void registerUser(UserDto userDto) {
 		if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-			throw new RuntimeException("Account with email " + userDto.getEmail() + " already exists");
+			throw new UserAlreadyExistsException("Account with email " + userDto.getEmail() + " already exists");
 		}
 
 		UserEntity userEntity = new UserEntity();

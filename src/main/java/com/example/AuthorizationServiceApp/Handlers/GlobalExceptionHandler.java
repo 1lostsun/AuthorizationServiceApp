@@ -2,6 +2,7 @@ package com.example.AuthorizationServiceApp.Handlers;
 
 import com.example.AuthorizationServiceApp.Exceptions.IncorrectPasswordException;
 import com.example.AuthorizationServiceApp.Exceptions.MessageSendingException;
+import com.example.AuthorizationServiceApp.Exceptions.UserAlreadyExistsException;
 import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
 import com.example.AuthorizationServiceApp.Entities.ErrorResponseEntity;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -50,6 +51,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleMessageSendingException(MessageSendingException e) {
 		ErrorResponseEntity errorResponse = new ErrorResponseEntity(new Date(), e.getMessage(), HttpStatus.BAD_REQUEST.value());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+	}
+
+	@ExceptionHandler(UserAlreadyExistsException.class)
+	public ResponseEntity<?> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+		ErrorResponseEntity errorResponse = new ErrorResponseEntity(new Date(), e.getMessage(), HttpStatus.CONFLICT.value());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
 	}
 
 }

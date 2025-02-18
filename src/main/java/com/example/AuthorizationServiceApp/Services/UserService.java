@@ -5,29 +5,19 @@ import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
 import com.example.AuthorizationServiceApp.Dto.UserDto;
 import com.example.AuthorizationServiceApp.Entities.UserEntity;
 import com.example.AuthorizationServiceApp.Repositories.UserRepository;
-import com.example.AuthorizationServiceApp.Services.JWT.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
 
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.jwtUtil = jwtUtil;
-	}
-
-	public UserDto getUserInfoFromJwt(String token) {
-		String username = jwtUtil.extractUsernameFromToken(token);
-		UserEntity userEntity = getUserByUsername(username);
-		return new UserDto(userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername());
 	}
 
 	public UserEntity getUserById(Long id) {
@@ -46,7 +36,7 @@ public class UserService {
 		userEntity.setPassword(passwordEncoder.encode(newPassword));
 	}
 
-	public void changeEmail(String username, String email, String newEmail) {
+	public void changeEmail(String username, String newEmail) {
 		UserEntity userEntity = getUserByUsername(username);
 		userEntity.setEmail(newEmail);
 	}

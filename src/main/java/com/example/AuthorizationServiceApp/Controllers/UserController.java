@@ -56,7 +56,7 @@ public class UserController {
 
 	@PatchMapping("/change/email")
 	public ResponseEntity<?> changeEmail(@RequestBody UserDto userDto, @RequestParam String newEmail) {
-		userService.changeEmail(userDto.getUsername(), userDto.getEmail(), newEmail);
+		userService.changeEmail(userDto.getUsername(), newEmail);
 		return ResponseEntity.ok("Email changed successfully: " + newEmail);
 	}
 
