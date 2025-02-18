@@ -44,10 +44,6 @@ public class JwtUtil {
 				throw new IllegalArgumentException("Invalid username in token");
 			}
 
-			if (isTokenExpired(token)) {
-				throw new ExpiredJwtException(null, null, "Token has expired");
-			}
-
 			return true;
 	}
 
@@ -80,6 +76,10 @@ public class JwtUtil {
 	}
 
 	public boolean isTokenExpired(String token) {
-		return extractExpirationDateFromToken(token).before(new Date());
+		boolean expiration = extractExpirationDateFromToken(token).before(new Date());
+		if (expiration) {
+			throw new ExpiredJwtException(null, null, "Token has expired");
+		}
+		return false;
 	}
 }

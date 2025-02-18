@@ -3,6 +3,7 @@ package com.example.AuthorizationServiceAppTests.Services;
 import com.example.AuthorizationServiceApp.AuthorizationServiceApp;
 import com.example.AuthorizationServiceApp.Dto.UserDto;
 import com.example.AuthorizationServiceApp.Entities.UserEntity;
+import com.example.AuthorizationServiceApp.Exceptions.IncorrectPasswordException;
 import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
 import com.example.AuthorizationServiceApp.Repositories.UserRepository;
 import com.example.AuthorizationServiceApp.Services.UserService;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -96,6 +98,20 @@ public class UserServiceTest {
 
 		userService.changePassword(user.getUsername(), oldPassword, newPassword);
 		assertEquals("$2a$10$newHashedPassword", user.getPassword());
+	}
+
+	@Test
+	void changePasswordTest_IncorrectPassword() {
+		String newPassword = "Admin";
+		UserDto userDto = new UserDto();
+		userDto.setUsername("admin");
+		userDto.setPassword("Admin");
+
+		UserEntity user = userService.getUserByUsername("admin");
+
+		when(passwordEncoder.matches(userDto.getPassword(), user.getPassword())).thenReturn(false);
+		assertThrows(IncorrectPasswordException.class, () -> userService.changePassword(userDto.getUsername(), userDto.getPassword(), newPassword));
+		verify(userRepository, never()).save(any(UserEntity.class));
 	}
 
 	@Test
