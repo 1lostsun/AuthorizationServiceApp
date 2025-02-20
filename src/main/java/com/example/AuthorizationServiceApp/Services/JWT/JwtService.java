@@ -58,7 +58,7 @@ public class JwtService {
 	}
 
 	public void cacheToken(String username, String token, long expiration) {
-		redisTemplate.opsForValue().set("jwt: " + username, token, Duration.ofSeconds(expiration));
+		redisTemplate.opsForValue().set("jwt:" + username, token, Duration.ofSeconds(expiration));
 	}
 
 	public String extractUsernameFromToken(String token) {
@@ -86,7 +86,7 @@ public class JwtService {
 
 	public void revokeToken(String username) {
 		redisTemplate.delete(
-				"jwt: " + username
+				"jwt:" + username
 		);
 	}
 }
