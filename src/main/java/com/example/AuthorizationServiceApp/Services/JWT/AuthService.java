@@ -14,12 +14,12 @@ public class AuthService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
+	private final JwtService jwtService;
 
-	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.jwtUtil = jwtUtil;
+		this.jwtService = jwtService;
 	}
 
 	public void registerUser(UserDto userDto) {
@@ -44,7 +44,11 @@ public class AuthService {
 			throw new IncorrectPasswordException("Incorrect password");
 		}
 
-		return jwtUtil.generateToken(userEntity.getUsername());
+		return jwtService.generateToken(userEntity.getUsername());
+	}
+
+	public void logoutUser(String username) {
+		jwtService.revokeToken(username);
 	}
 
 }

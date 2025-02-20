@@ -8,7 +8,7 @@ import com.example.AuthorizationServiceApp.Exceptions.UserAlreadyExistsException
 import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
 import com.example.AuthorizationServiceApp.Repositories.UserRepository;
 import com.example.AuthorizationServiceApp.Services.JWT.AuthService;
-import com.example.AuthorizationServiceApp.Services.JWT.JwtUtil;
+import com.example.AuthorizationServiceApp.Services.JWT.JwtService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,7 +36,7 @@ public class AuthServiceTest {
 	private PasswordEncoder passwordEncoder;
 
 	@Mock
-	private JwtUtil jwtUtil;
+	private JwtService jwtService;
 
 	@InjectMocks
 	private AuthService authService;
@@ -117,7 +117,7 @@ public class AuthServiceTest {
 
 		when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.of(userEntity));
 		when(passwordEncoder.matches(userDto.getPassword(), userEntity.getPassword())).thenReturn(true);
-		when(jwtUtil.generateToken(any())).thenReturn(expectedToken);
+		when(jwtService.generateToken(any())).thenReturn(expectedToken);
 
 		String token = authService.authenticateUser(userDto.getEmail(), userDto.getPassword());
 

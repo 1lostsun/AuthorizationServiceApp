@@ -1,6 +1,6 @@
 package com.example.AuthorizationServiceApp.Filters;
 
-import com.example.AuthorizationServiceApp.Services.JWT.JwtUtil;
+import com.example.AuthorizationServiceApp.Services.JWT.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,11 +20,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final UserDetailsService userDetailsService;
-	private final JwtUtil jwtUtil;
+	private final JwtService jwtService;
 
-	public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+	public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtService jwtService) {
 		this.userDetailsService = userDetailsService;
-		this.jwtUtil = jwtUtil;
+		this.jwtService = jwtService;
 	}
 
 
@@ -38,12 +38,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		String authToken = authHeader.substring(7);
-		String username = jwtUtil.extractUsernameFromToken(authToken);
+		String username = jwtService.extractUsernameFromToken(authToken);
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-			if (jwtUtil.validateToken(authToken, userDetails)) {
+			if (jwtService.validateToken(authToken, userDetails)) {
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
 						new UsernamePasswordAuthenticationToken
 								(userDetails, null, userDetails.getAuthorities());

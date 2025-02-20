@@ -12,7 +12,6 @@ public class AppConfig {
 	@Value("${app.expiration-time}")
 	private int expirationTime;
 
-
 	public int getExpirationTime() {
 		return expirationTime;
 	}

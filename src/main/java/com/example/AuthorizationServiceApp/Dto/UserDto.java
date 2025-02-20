@@ -1,12 +1,13 @@
 package com.example.AuthorizationServiceApp.Dto;
 
+import lombok.NonNull;
+
 public class UserDto {
 
+	@NonNull
 	private String email;
 	private String password;
 	private String username;
-
-	public UserDto() {}
 
 	public UserDto(String email, String password, String username) {
 		this.email = email;
