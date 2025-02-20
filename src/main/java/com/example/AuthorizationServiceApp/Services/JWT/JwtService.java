@@ -45,15 +45,16 @@ public class JwtService {
 		return token;
 	}
 
-	public boolean validateToken(String token, UserDetails userDetails) {
-			String username = userDetails.getUsername();
+	public boolean validateToken(String token) {
+		try {
 			String usernameFromToken = extractUsernameFromToken(token);
+			String cachedToken = (String) redisTemplate.opsForValue().get("jwt:" + usernameFromToken);
 
-			if (!username.equals(usernameFromToken)) {
-				throw new IllegalArgumentException("Invalid username in token");
-			}
+			return token.equals(cachedToken);
+		} catch (Exception e) {
+			return false;
+		}
 
-			return true;
 	}
 
 	public void cacheToken(String username, String token, long expiration) {
