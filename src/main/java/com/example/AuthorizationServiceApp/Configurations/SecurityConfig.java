@@ -1,6 +1,7 @@
 package com.example.AuthorizationServiceApp.Configurations;
 
 import com.example.AuthorizationServiceApp.Filters.JwtAuthenticationFilter;
+import com.example.AuthorizationServiceApp.Filters.JwtValidationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,10 +22,12 @@ public class SecurityConfig {
 
 	private final UserDetailsService userDetailsService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtValidationFilter jwtValidationFilter;
 
-	public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+	public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtValidationFilter jwtValidationFilter) {
 		this.userDetailsService = userDetailsService;
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.jwtValidationFilter = jwtValidationFilter;
 	}
 
 	@Bean
@@ -39,7 +42,8 @@ public class SecurityConfig {
 				.sessionManagement((session) -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				)
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -61,4 +65,5 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 }

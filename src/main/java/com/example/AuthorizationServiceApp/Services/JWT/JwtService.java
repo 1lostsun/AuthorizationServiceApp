@@ -20,10 +20,10 @@ public class JwtService {
 
 	private final SecretKey key;
 	private final int expirationTime;
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 	private final long redisExpirationTime;
 
-	public JwtService(AppConfig appConfig, RedisTemplate<String, Object> redisTemplate, RedisConfig redisConfig) {
+	public JwtService(AppConfig appConfig, RedisTemplate<String, String> redisTemplate, RedisConfig redisConfig) {
 		this.key = Keys.hmacShaKeyFor(appConfig.getSecretKey().getBytes());
 		this.expirationTime = appConfig.getExpirationTime();
 		this.redisTemplate = redisTemplate;

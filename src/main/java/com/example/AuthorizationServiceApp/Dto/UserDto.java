@@ -1,7 +1,9 @@
 package com.example.AuthorizationServiceApp.Dto;
 
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor
 public class UserDto {
 
 	@NonNull
