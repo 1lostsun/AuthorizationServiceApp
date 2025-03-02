@@ -1,6 +1,6 @@
 package com.example.AuthorizationServiceApp.Controllers;
 
-import com.example.AuthorizationServiceApp.Dto.UserDto;
+import com.example.AuthorizationServiceApp.Dto.UserRequestDto;
 import com.example.AuthorizationServiceApp.Services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,13 @@ public class UserController {
 	}
 
 	@GetMapping("/appPage")
-	public String appPage() {
-		return "appPage";
+	public ResponseEntity<String> appPage() {
+		return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body("<h1>appPage<h1>");
+	}
+
+	@GetMapping("some/page")
+	public ResponseEntity<String> somePage() {
+		return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body("<h1>some page<h1>");
 	}
 
 	@GetMapping("/homePage")
@@ -30,14 +35,14 @@ public class UserController {
 	}
 
 	@PatchMapping("/change/email")
-	public ResponseEntity<?> changeEmail(@RequestBody UserDto userDto, @RequestParam String newEmail) {
-		userService.changeEmail(userDto.getUsername(), newEmail);
+	public ResponseEntity<?> changeEmail(@RequestBody UserRequestDto userRequestDto, @RequestParam String newEmail) {
+		userService.changeEmail(userRequestDto.getUsername(), newEmail);
 		return ResponseEntity.ok("Email changed successfully: " + newEmail);
 	}
 
 	@PatchMapping("/change/password")
-	public ResponseEntity<?> changePassword(@RequestBody UserDto userDto, @RequestParam String newPassword) {
-		userService.changePassword(userDto.getUsername(), userDto.getPassword(), newPassword);
+	public ResponseEntity<?> changePassword(@RequestBody UserRequestDto userRequestDto, @RequestParam String newPassword) {
+		userService.changePassword(userRequestDto.getUsername(), userRequestDto.getPassword(), newPassword);
 		return ResponseEntity.ok("Password changed successfully: " + newPassword);
 	}
 

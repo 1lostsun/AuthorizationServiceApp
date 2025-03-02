@@ -2,7 +2,7 @@ package com.example.AuthorizationServiceApp.Services;
 
 import com.example.AuthorizationServiceApp.Exceptions.IncorrectPasswordException;
 import com.example.AuthorizationServiceApp.Exceptions.UserNotFoundException;
-import com.example.AuthorizationServiceApp.Dto.UserDto;
+import com.example.AuthorizationServiceApp.Dto.UserRequestDto;
 import com.example.AuthorizationServiceApp.Entities.UserEntity;
 import com.example.AuthorizationServiceApp.Repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,11 +41,11 @@ public class UserService {
 		userEntity.setEmail(newEmail);
 	}
 
-	public void updateUser(UserDto userDto) {
-		UserEntity userEntity = getUserByUsername(userDto.getUsername());
+	public void updateUser(UserRequestDto userRequestDto) {
+		UserEntity userEntity = getUserByUsername(userRequestDto.getUsername());
 
-		userEntity.setUsername(userDto.getUsername());
-		userEntity.setEmail(userDto.getEmail());
+		userEntity.setUsername(userRequestDto.getUsername());
+		userEntity.setEmail(userRequestDto.getEmail());
 		userRepository.save(userEntity);
 	}
 

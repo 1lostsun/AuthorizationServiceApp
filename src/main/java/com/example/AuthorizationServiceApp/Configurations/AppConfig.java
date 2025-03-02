@@ -9,14 +9,20 @@ public class AppConfig {
 
 	@Value("${app.secret-key}")
 	private String secretKey;
-	@Value("${app.expiration-time}")
-	private int expirationTime;
-
-	public int getExpirationTime() {
-		return expirationTime;
-	}
+	@Value("${app.access.token.expiration-time}")
+	private int accessTokenExpirationTime;
+	@Value("${app.refresh.token.expiration-time}")
+	private int refreshTokenExpirationTime;
 
 	public String getSecretKey() {
 		return secretKey;
+	}
+
+	public int getAccessTokenExpirationTime() {
+		return accessTokenExpirationTime;
+	}
+
+	public int getRefreshTokenExpirationTime() {
+		return refreshTokenExpirationTime;
 	}
 }

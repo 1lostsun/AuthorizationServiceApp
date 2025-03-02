@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -27,32 +26,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		this.jwtService = jwtService;
 	}
 
-
 	@Override
-	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
 
 		String authToken = extractToken(request);
+		if (jwtService.isTokenExpired(authToken)) {
+			if (authToken != null && jwtService.validateToken(authToken, "access")) {
+				String username = jwtService.extractUsernameFromToken(authToken);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-			if (jwtService.validateToken(authToken)) {
+				UsernamePasswordAuthenticationToken authentication =
+						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-				String usernameFromToken = jwtService.extractUsernameFromToken(authToken);
-				UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
-
-				UsernamePasswordAuthenticationToken
-						authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-				authentication
-						.setDetails(new WebAuthenticationDetailsSource()
-								.buildDetails(request));
-
-				SecurityContextHolder
-						.getContext()
-						.setAuthentication(authentication);
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
+		}
 		chain.doFilter(request, response);
 	}
 
-	public String extractToken(HttpServletRequest request) {
+	private String extractToken(HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			return authHeader.substring(7);

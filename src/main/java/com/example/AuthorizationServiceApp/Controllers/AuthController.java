@@ -1,6 +1,7 @@
 package com.example.AuthorizationServiceApp.Controllers;
 
-import com.example.AuthorizationServiceApp.Dto.UserDto;
+import com.example.AuthorizationServiceApp.Dto.AuthResponseDto;
+import com.example.AuthorizationServiceApp.Dto.UserRequestDto;
 import com.example.AuthorizationServiceApp.Services.JWT.AuthService;
 import com.example.AuthorizationServiceApp.Services.Kafka.KafkaProducer;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +24,30 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody UserDto userDto, RedirectAttributes redirectAttributes) {
-		authService.registerUser(userDto);
-		redirectAttributes.addFlashAttribute("message", "User registered successfully");
-		return ResponseEntity.status(201).body("redirect:/auth");
+	public ResponseEntity<?> register(@RequestBody UserRequestDto userRequestDto, RedirectAttributes redirectAttributes) {
+		authService.registerUser(userRequestDto);
+		kafkaProducer.sendMessage("auth-topic", null, "User registered successfully");
+		return ResponseEntity.status(201).body("User registered successfully");
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody UserDto userDto) {
-		String token = authService.authenticateUser(userDto.getEmail(), userDto.getPassword());
-		kafkaProducer.sendMessage("auth-topic", null, "User login successfully");
-		return ResponseEntity.ok("User login successfully " + "with token " + token);
+	public ResponseEntity<?> login(@RequestBody UserRequestDto userRequestDto) {
+		AuthResponseDto authResponseDto = authService.authenticateUser(userRequestDto.getEmail(), userRequestDto.getPassword());
+		kafkaProducer.sendMessage("auth-topic", null, "User logged in: " + userRequestDto.getEmail() );
+		return ResponseEntity.ok(authResponseDto);
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> logout(@RequestBody UserDto userDto) {
+	public ResponseEntity<?> logout(@RequestBody UserRequestDto userRequestDto) {
+		authService.logoutUser(userRequestDto.getUsername());
 		kafkaProducer.sendMessage("auth-topic", null, "User logout successfully");
-		authService.logoutUser(userDto.getUsername());
 		return ResponseEntity.ok("User logout successfully");
 	}
 
+	@PostMapping("/refresh")
+	public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody UserRequestDto userRequestDto) {
+		AuthResponseDto newTokens = authService.refreshToken(userRequestDto.getUsername());
+		kafkaProducer.sendMessage("auth-topic", null, "User refreshed token");
+		return ResponseEntity.ok(newTokens);
+	}
 }

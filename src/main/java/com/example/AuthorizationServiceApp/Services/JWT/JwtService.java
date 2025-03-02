@@ -1,64 +1,76 @@
 package com.example.AuthorizationServiceApp.Services.JWT;
 
 import com.example.AuthorizationServiceApp.Configurations.AppConfig;
-import com.example.AuthorizationServiceApp.Configurations.Redis.RedisConfig;
+import com.example.AuthorizationServiceApp.Services.Redis.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.time.Duration;
 import java.util.Date;
 
 @Component
 public class JwtService {
 
 	private final SecretKey key;
-	private final int expirationTime;
-	private final RedisTemplate<String, String> redisTemplate;
-	private final long redisExpirationTime;
+	private final int accessTokenExpirationTime;
+	private final int refreshTokenExpirationTime;
+	private final RefreshTokenService refreshTokenService;
 
-	public JwtService(AppConfig appConfig, RedisTemplate<String, String> redisTemplate, RedisConfig redisConfig) {
+	public JwtService(AppConfig appConfig, RefreshTokenService refreshTokenService) {
 		this.key = Keys.hmacShaKeyFor(appConfig.getSecretKey().getBytes());
-		this.expirationTime = appConfig.getExpirationTime();
-		this.redisTemplate = redisTemplate;
-		this.redisExpirationTime = redisConfig.getRedisTokenExpirationTime();
+		this.accessTokenExpirationTime = appConfig.getAccessTokenExpirationTime();
+		this.refreshTokenExpirationTime = appConfig.getRefreshTokenExpirationTime();
+		this.refreshTokenService = refreshTokenService;
 	}
 
-	public String generateToken(String username) {
-		Date now = new Date();
-		Date expiration = new Date(now.getTime() + expirationTime);
+	public String generateAccessToken(String username) {
+		return generateToken(username, accessTokenExpirationTime, "access");
+	}
 
-		String token =  Jwts
+	public String generateRefreshToken(String username) {
+		String refreshToken = generateToken(username, refreshTokenExpirationTime, "refresh");
+		refreshTokenService.saveRefreshToken(username, refreshToken);
+		return refreshToken;
+	}
+
+	private String generateToken(String username, int refreshTokenExpirationTime, String type) {
+		Date now = new Date();
+		Date expiration = new Date(now.getTime() + refreshTokenExpirationTime);
+
+		return Jwts
 				.builder()
 				.signWith(this.key)
 				.subject(username)
 				.issuedAt(now)
 				.expiration(expiration)
+				.claim("type", type)
 				.compact();
-		cacheToken(username, token, redisExpirationTime);
-		return token;
 	}
 
-	public boolean validateToken(String token) {
-		try {
-			String usernameFromToken = extractUsernameFromToken(token);
-			String cachedToken = (String) redisTemplate.opsForValue().get("jwt:" + usernameFromToken);
+	public boolean validateToken(String token, String type) {
+		if (token == null) {
+			return false;
+		}
 
-			return token.equals(cachedToken);
+		try {
+			if (type.equals("access")) {
+				return isTokenExpired(token);
+			} else if (type.equals("refresh")) {
+				String username = extractUsernameFromToken(token);
+				if (username == null) return false;
+
+				String storedToken = refreshTokenService.getRefreshToken(username);
+				return storedToken != null && storedToken.equals(token);
+			}
 		} catch (Exception e) {
 			return false;
 		}
 
-	}
-
-	public void cacheToken(String username, String token, long expiration) {
-		redisTemplate.opsForValue().set("jwt:" + username, token, Duration.ofSeconds(expiration));
+		return false;
 	}
 
 	public String extractUsernameFromToken(String token) {
@@ -77,16 +89,17 @@ public class JwtService {
 	}
 
 	public boolean isTokenExpired(String token) {
-		boolean expiration = extractExpirationDateFromToken(token).before(new Date());
-		if (expiration) {
-			throw new ExpiredJwtException(null, null, "Token has expired");
+		try {
+			return !extractExpirationDateFromToken(token).before(new Date());
+		} catch (ExpiredJwtException e) {
+			return false;
 		}
-		return false;
+	}
+	public String getRefreshToken(String username) {
+		return refreshTokenService.getRefreshToken(username);
 	}
 
-	public void revokeToken(String username) {
-		redisTemplate.delete(
-				"jwt:" + username
-		);
+	public void revokeRefreshToken(String username) {
+		refreshTokenService.deleteRefreshToken(username);
 	}
 }
