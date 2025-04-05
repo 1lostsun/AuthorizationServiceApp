@@ -18,7 +18,6 @@ public class RefreshTokenService {
 	}
 
 	public void saveRefreshToken(String username, String refreshToken) {
-		System.out.println("Refresh Token: " + refreshToken);
 		redisTemplate.opsForValue().set("jwt:refresh:" + username, refreshToken, refreshTokenExpirationTime, TimeUnit.SECONDS);
 	}
 

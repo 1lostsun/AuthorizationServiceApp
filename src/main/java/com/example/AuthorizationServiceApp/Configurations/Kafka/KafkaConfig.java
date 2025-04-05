@@ -15,6 +15,7 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 public class KafkaConfig {
@@ -31,7 +32,7 @@ public class KafkaConfig {
 	@Bean
 	public ProducerFactory<String, Object> producerFactory() {
 
-		Map<String, Object> configProperties = new HashMap<>();
+		Map<String, Object> configProperties = new ConcurrentHashMap<>();
 		configProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
 		configProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -41,7 +42,7 @@ public class KafkaConfig {
 
 	@Bean
 	public ConsumerFactory<String, String> consumerFactory() {
-		Map<String, Object> configProperties = new HashMap<>();
+		Map<String, Object> configProperties = new ConcurrentHashMap<>();
 
 		configProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
 		configProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);

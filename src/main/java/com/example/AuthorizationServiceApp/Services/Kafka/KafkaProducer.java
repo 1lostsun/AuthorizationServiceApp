@@ -21,14 +21,16 @@ public class KafkaProducer {
 		this.kafkaTemplate = kafkaTemplate;
 	}
 
-	public void sendMessage(String topic, String key, MessageDto message) throws JsonProcessingException {
+	public void sendMessage(String topic, String key, Object message) throws JsonProcessingException {
 		String jsonMessage = objectMapper.writeValueAsString(message);
+		log.info("Отправка сообщения в Kafka: topic={}, key={}, message={}", topic, key, jsonMessage);
+
 		kafkaTemplate.send(topic, key, jsonMessage)
 				.whenComplete((success, failure) -> {
 					if (success != null) {
-						log.info("Message sent to topic: {} key: {} message: {}", topic, key, message);
+						log.info("Сообщение успешно отправлено: {}", success.getRecordMetadata());
 					} else {
-						throw new MessageSendingException("Error sending message to topic: " + topic + ", key: " + key + ", message: " + message);
+						log.error("Ошибка при отправке сообщения", failure);
 					}
 				});
 	}
