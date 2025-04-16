@@ -7,13 +7,15 @@ public class AuditMessageDto {
 	private String ipAddress;
 	private String timestamp;
 	private String additionalInfo;
+	private Long userId;
 
-	public AuditMessageDto(String eventType, String username, String ipAddress, String timestamp, String additionalInfo) {
+	public AuditMessageDto(String eventType, String username, String ipAddress, String timestamp, String additionalInfo, Long userId) {
 		this.eventType = eventType;
 		this.username = username;
 		this.ipAddress = ipAddress;
 		this.timestamp = timestamp;
 		this.additionalInfo = additionalInfo;
+		this.userId = userId;
 	}
 
 	public String getEventType() {
@@ -54,5 +56,13 @@ public class AuditMessageDto {
 
 	public void setAdditionalInfo(String additionalInfo) {
 		this.additionalInfo = additionalInfo;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 }

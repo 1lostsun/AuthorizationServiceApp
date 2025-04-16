@@ -1,7 +1,5 @@
 package com.example.AuthorizationServiceApp.Services.Kafka;
 
-import com.example.AuthorizationServiceApp.Dto.MessageDto;
-import com.example.AuthorizationServiceApp.Exceptions.MessageSendingException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
